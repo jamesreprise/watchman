@@ -5,8 +5,8 @@ class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.has_permissions(administrator=True)
     @commands.command()
+    @commands.check_any(commands.is_owner(), commands.has_permissions(administrator=True))
     async def prefix(self, ctx):
         """ Sets the prefix to the string given.
 

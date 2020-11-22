@@ -1,5 +1,14 @@
-[ids]
-owner = ""
-
 [keys]
 discord_bot_token = ""
+
+[settings]
+# Bot owner's discord id as an integer.
+owner_id = 
+# Default command prefix. This can be changed using the `prefix` command.
+prefix = "!"
+# Colour for embeds.
+colour = 0X9DD6F3
+# Database auth for psycopg2
+db_auth = "dbname=watchman user=watchman"
+# Maximum cached messages
+max_messages = 100_000

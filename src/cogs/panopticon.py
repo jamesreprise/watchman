@@ -7,36 +7,9 @@ from datetime import datetime, timedelta
 class Panopticon(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.connection = psycopg2.connect("dbname=watchman user=watchman")
-        self.cursor = self.connection.cursor()
 
     def log(self, message):
         print("[" + self.bot.time_now() + "] " + message)
-    
-    def add_guild_user_if_not_exists(self, user):
-        self.cursor.execute("SELECT discord_id FROM discord_users WHERE discord_id = %s;",
-                    (str(user.id), ))
-        if self.cursor.fetchall() == []:
-            self.cursor.execute("INSERT INTO discord_users (discord_id, username, discriminator) VALUES (%s, %s, %s);",
-                (str(user.id), user.name, str(user.discriminator)))
-            self.connection.commit()
-
-    def add_guild_users_if_not_exists(self, guild):
-        for user in guild.members:
-            self.add_guild_user_if_not_exists(user)
-    
-    def correct_existing_users(self, guild):
-        for user in guild.members:
-            self.cursor.execute("SELECT discord_id, username, discriminator FROM discord_users WHERE discord_id = %s;",
-                (str(user.id), ))
-            (_, username, discriminator) = self.cursor.fetchone()
-            if user.name != username:
-                self.cursor.execute("UPDATE discord_users SET username = %s WHERE discord_id = %s;",
-                    (user.name, str(user.id)))
-            if user.discriminator != discriminator:
-                self.cursor.execute("UPDATE discord_users SET discriminator = %s WHERE discord_id = %s;",
-                    (str(user.discriminator), str(user.id)))
-        self.connection.commit()
 
     @commands.Cog.listener()
     async def on_message(self, ctx):
@@ -135,10 +108,6 @@ class Panopticon(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        # if before.status != after.status:
-        #     self.log("(" + before.name + ") " + before.name + "#" + before.discriminator + " changed their status from \"" + before.status + "\" to \"" + after.status + "\".")
-        # if before.activity != after.activity:
-        #     self.log("(" + before.name + ") " + before.name + "#" + before.discriminator + " changed their activity from \"" + before.activity + "\" to \"" + after.activity + "\".")
         if before.nick != after.nick:
             if before.nick and after.nick:
                 self.log(f"({after.guild.name} - {after.name}) {after.name}#{after.discriminator}'s nickname was changed from \"{before.nick}\" to \"{after.nick}\".")
@@ -160,14 +129,8 @@ class Panopticon(commands.Cog):
             self.log(f"{after.name}#{after.discriminator} changed their avatar.")
         if before.name != after.name:
             self.log(f"{after.name}#{after.discriminator} changed their name: {before.name} -> {after.name}.")
-            self.cursor.execute("UPDATE discord_users SET username = %s WHERE discord_id = %s;",
-            (after.name, str(after.id)))
-            self.connection.commit()
         if before.discriminator != after.discriminator:
             self.log(f"{after.name}#{after.discriminator} changed their discriminator: {before.discriminator} -> {after.discriminator}.")
-            self.cursor.execute("UPDATE discord_users SET discriminator = %s WHERE discord_id = %s;",
-            (str(after.discriminator), str(after.id)))
-            self.connection.commit()
         
     @commands.Cog.listener()
     async def on_guild_update(self, before, after):
@@ -181,13 +144,6 @@ class Panopticon(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
         self.log(f"Left {guild.name}.")
-
-    @commands.Cog.listener()
-    async def on_ready(self):
-        for guild in self.bot.guilds:
-            self.add_guild_users_if_not_exists(guild)
-            self.correct_existing_users(guild)
-    
 
 
 def setup(bot):

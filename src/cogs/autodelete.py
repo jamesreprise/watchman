@@ -6,21 +6,15 @@ class AutoDelete(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_raw_message_delete(self, ctx):
-        """ Checks if a user removed a command call, removes the response. """
-        info = await self.bot.application_info()
+    async def on_message_delete(self, message):
+        message = message.channel.history(limit=1, after=message).flatten()[0]
+        if message.author.id == self.bot.user.id:
+            await message.delete()
 
-        if ctx.cached_message:
-            messages = await self.bot.get_channel(ctx.channel_id).history(limit=1, after=ctx.cached_message).flatten()
-            for message in messages:
-                if message.author.id == info.id:
-                    await message.delete()
-        else:
-            messages = await self.bot.get_channel(ctx.channel_id).history(limit=1).flatten()
-            for message in messages:
-                if message.author.id == info.id:
-                    before_messages = await self.bot.get_channel(ctx.channel_id).history(limit=1, before=message).flatten()
-                    await message.delete()
+    @commands.Cog.listener()
+    async def on_message_edit(self, before, after):
+        if after.content.startswith(self.bot.prefix(self.bot, after)):
+            await self.bot.process_commands(after)
 
 
 def setup(bot):
