@@ -1,0 +1,17 @@
+[Unit]
+Description=Watchman
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -u /home/watchman/watchman/src/bot.py
+WorkingDirectory=/home/watchman/watchman/src
+Restart=always
+TimeoutStopSec=1
+StandardOutput=journal
+
+User=watchman
+Group=watchman
+
+[Install]
+WantedBy=multi-user.target

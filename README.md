@@ -3,11 +3,18 @@
 ![](https://primetime.james.gg/images/watchman.png)
 
 ## Installation
+
+### Hosted
 https://discord.com/api/oauth2/authorize?client_id=539224624815276040&permissions=128&scope=bot
 
 Add the bot to your server and in a channel only server administrators can see, use `!wm`.
 
 Note: If you choose not to grant the bot permissions to view audit logs, bans for your server will be logged as made by "Unknown" for reason "Unknown".
+
+### Self-Hosted
+Watchman makes heavy use of PostgreSQL. The database situation in v1 is not sophisticated: you'll need a database called watchman and a user called watchman to connect to the database. This could be easily modified, see [watchman.py](src/cogs/watchman.py).
+
+See [watchman.service](watchman.service) for an example systemd service file.
 
 ## Commands
 
