@@ -1,6 +1,6 @@
 # Watchman
 
-![](https://primetime.james.gg/images/watchman.png)
+![](./manhattan.png)
 
 ## Installation
 
